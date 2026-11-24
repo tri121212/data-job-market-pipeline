@@ -1,0 +1,32 @@
+# secrets / local config
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# docker helper (generated, machine-specific)
+.docker/
+
+# data / artifacts
+data/
+*.log
+tmp/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
