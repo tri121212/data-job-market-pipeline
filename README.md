@@ -8,7 +8,7 @@ End-to-end ELT pipeline for the Vietnamese IT job market: scrape → raw object 
 
 ```mermaid
 flowchart LR
-    A[ITviec / TopCV] -->|scrape| B[MinIO raw/]
+    A[TopDev sitemap] -->|scrape JSON-LD| B[MinIO raw/]
     B -->|loader| C[(Postgres raw)]
     C -->|dbt staging| D[(staging)]
     D -->|dbt marts| E[(marts)]
@@ -18,6 +18,9 @@ flowchart LR
     G -.-> D
     G -.-> F
 ```
+
+> Nguồn dữ liệu: **TopDev** — ITviec và TopCV đều chặn bot bằng Cloudflare (403).
+> Chi tiết khảo sát và field mapping: [docs/source-notes.md](docs/source-notes.md).
 
 ## Tech stack
 
