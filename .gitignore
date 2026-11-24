@@ -15,6 +15,9 @@ htmlcov/
 # docker helper (generated, machine-specific)
 .docker/
 
+# pre-commit hook environments (kept inside the workspace on purpose)
+.cache/
+
 # data / artifacts
 data/
 *.log

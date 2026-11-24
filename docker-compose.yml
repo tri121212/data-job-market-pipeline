@@ -21,7 +21,7 @@ services:
       retries: 12
 
   minio:
-    image: minio/minio:latest
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: djm-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -33,24 +33,11 @@ services:
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - miniodata:/data
-
-  minio-init:
-    image: minio/mc:latest
-    container_name: djm-minio-init
-    depends_on:
-      - minio
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      S3_BUCKET: ${S3_BUCKET:-raw}
-    entrypoint: >
-      /bin/sh -c "
-      until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD >/dev/null 2>&1; do
-        echo 'waiting for minio...'; sleep 2;
-      done;
-      mc mb --ignore-existing local/$$S3_BUCKET;
-      echo 'minio ready, bucket:' $$S3_BUCKET;
-      "
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
 volumes:
   pgdata:

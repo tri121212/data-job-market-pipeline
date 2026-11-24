@@ -8,13 +8,16 @@ VENV := .venv
 export DOCKER_CONFIG := $(CURDIR)/.docker
 export PATH := $(CURDIR)/bin:$(PATH)
 
-.PHONY: help init up down restart logs psql minio-console venv install test lint fmt precommit clean
+.PHONY: help init up down restart logs psql minio-console bucket venv install test lint fmt precommit clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-init: ## Create .env from .env.example if missing
+init: ## Create .env and the sandbox-safe Docker config
 	@test -f .env || (cp .env.example .env && echo "created .env")
+	@mkdir -p .docker
+	@printf '{"auths":{},"credsStore":"null"}' > .docker/config.json
+	@ln -sfn "$$HOME/.docker/cli-plugins" .docker/cli-plugins
 
 up: init ## Start Postgres + MinIO
 	docker compose up -d
@@ -30,6 +33,9 @@ logs: ## Tail container logs
 
 psql: ## Open a psql shell
 	docker compose exec postgres psql -U $${POSTGRES_USER:-djm} -d $${POSTGRES_DB:-jobmarket}
+
+bucket: ## Create the raw S3 bucket (run after make install)
+	$(VENV)/bin/python -m ingestion.ensure_bucket
 
 venv: ## Create the Python 3.12 virtualenv
 	test -d $(VENV) || $(PYTHON) -m venv $(VENV)
@@ -48,7 +54,8 @@ fmt: ## Format with ruff
 	$(VENV)/bin/ruff format .
 
 precommit: ## Install git hooks
-	$(VENV)/bin/pre-commit install
+	PRE_COMMIT_HOME=$(CURDIR)/.cache/pre-commit $(VENV)/bin/pre-commit install
+	PRE_COMMIT_HOME=$(CURDIR)/.cache/pre-commit $(VENV)/bin/pre-commit install-hooks
 
 clean: ## Remove containers AND volumes (destructive)
 	docker compose down -v

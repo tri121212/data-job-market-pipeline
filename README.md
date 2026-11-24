@@ -37,17 +37,21 @@ flowchart LR
 Yêu cầu: Docker Desktop đang chạy, Python 3.12 (`/opt/homebrew/bin/python3.12`).
 
 ```bash
-make up        # start Postgres + MinIO, create .env, create bucket "raw"
+make up        # start Postgres + MinIO, create .env
 make install   # create .venv and install dependencies
+make bucket    # create the "raw" bucket in MinIO
 make test      # run pytest
 ```
 
 Kiểm tra:
 
 ```bash
-make psql                 # psql shell -> \dn  (thấy schema raw, analytics)
+make psql                   # psql shell -> \dn  (thấy schema raw, analytics)
 open http://localhost:9001  # MinIO console (minioadmin / minioadmin)
 ```
+
+> Postgres được map ra **port 5433** (5432 hay bị chiếm bởi project khác trên máy).
+> Kết nối từ ngoài container: `postgresql://djm:djm_dev_password@localhost:5433/jobmarket`
 
 Tắt:
 
