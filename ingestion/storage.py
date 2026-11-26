@@ -71,9 +71,7 @@ class ObjectStore:
 
     # -- writes ------------------------------------------------------------- #
     def put_text(self, key: str, body: str) -> None:
-        self.client.put_object(
-            Bucket=self.bucket, Key=key, Body=body.encode("utf-8")
-        )
+        self.client.put_object(Bucket=self.bucket, Key=key, Body=body.encode("utf-8"))
 
     def put_bytes(self, key: str, body: bytes) -> None:
         self.client.put_object(Bucket=self.bucket, Key=key, Body=body)

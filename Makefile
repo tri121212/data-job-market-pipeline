@@ -8,7 +8,7 @@ VENV := .venv
 export DOCKER_CONFIG := $(CURDIR)/.docker
 export PATH := $(CURDIR)/bin:$(PATH)
 
-.PHONY: help init up down restart logs psql minio-console bucket scrape scrape-dry venv install test lint fmt precommit clean
+.PHONY: help init up down restart logs psql minio-console bucket scrape scrape-dry load venv install test lint fmt precommit clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +42,9 @@ scrape: ## Crawl TopDev into MinIO raw zone (PAGES=20, DATE=today)
 
 scrape-dry: ## Show what a crawl would do, without network calls
 	$(VENV)/bin/python -m ingestion.scrape --pages $${PAGES:-20} --dry-run
+
+load: ## Load raw jobs into Postgres (DATE=YYYY-MM-DD or ALL=1)
+	$(VENV)/bin/python -m ingestion.load $${DATE:+--date $$DATE} $${ALL:+--all}
 
 venv: ## Create the Python 3.12 virtualenv
 	test -d $(VENV) || $(PYTHON) -m venv $(VENV)

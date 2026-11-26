@@ -73,7 +73,9 @@ def main(argv: list[str] | None = None) -> int:
             existing_text = store.get_text(rejects_key(dt, page)) or ""
             existing = [json.loads(line) for line in existing_text.splitlines() if line.strip()]
             store.put_jsonl(rejects_key(dt, page), existing + moved)
-        print(f"page {page:03d}: {len(rows):2} -> {len(keep):2} kept, {len(moved):2} moved to rejects")
+        print(
+            f"page {page:03d}: {len(rows):2} -> {len(keep):2} kept, {len(moved):2} moved to rejects"
+        )
 
     print(f"\ndone: {before} rows -> {after} kept ({removed} reclassified as non-IT)")
     return 0

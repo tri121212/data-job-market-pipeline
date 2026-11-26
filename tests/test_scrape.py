@@ -41,7 +41,9 @@ def settings() -> Settings:
 def test_crawl_page_keeps_it_jobs_and_records_rejects(monkeypatch, settings):
     store = FakeStore()
     monkeypatch.setattr(scrape, "sitemap_job_urls", lambda page, session: ["u-it", "u-bank"])
-    monkeypatch.setattr(scrape, "fetch", lambda url, session: IT_HTML if url == "u-it" else BANK_HTML)
+    monkeypatch.setattr(
+        scrape, "fetch", lambda url, session: IT_HTML if url == "u-it" else BANK_HTML
+    )
 
     result = scrape.crawl_page(
         page=1, dt="2026-11-26", store=store, session=object(), settings=settings, seen_ids=set()
