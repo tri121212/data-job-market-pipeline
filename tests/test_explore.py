@@ -37,7 +37,8 @@ def test_parses_identity_and_skills() -> None:
     job = parse_jobposting(load_fixture("topdev_job_it.html.gz"))
     assert job is not None
     assert job["source"] == "topdev"
-    assert job["source_id"] == "97179"
+    assert job["source_id"] == "2138855"
+    assert job["company_id"] == "97179"
     assert job["title"].startswith("Chuyên viên Ứng dụng Microsoft 365")
     assert job["skills"] == ["Sharepoint", "Microsoft 365"]
     assert job["location_region"] == "Hồ Chí Minh"
@@ -54,3 +55,12 @@ def test_description_is_textualized() -> None:
 
 def test_returns_none_without_jobposting() -> None:
     assert parse_jobposting("<html><body>no structured data</body></html>") is None
+
+
+def test_job_id_is_taken_from_url_tail() -> None:
+    from ingestion.explore import job_id_from_url
+
+    assert job_id_from_url("https://topdev.vn/detail-jobs/a-b-c-2138855") == "2138855"
+    assert job_id_from_url("https://topdev.vn/detail-jobs/x-123?src=home") == "123"
+    assert job_id_from_url(None) is None
+    assert job_id_from_url("https://topdev.vn/no-id-here") is None

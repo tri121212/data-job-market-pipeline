@@ -44,6 +44,11 @@ make up        # start Postgres + MinIO, create .env
 make install   # create .venv and install dependencies
 make bucket    # create the "raw" bucket in MinIO
 make test      # run pytest
+
+# crawl jobs into the raw zone (20 pages ~ 400 postings, ~6 min)
+make scrape PAGES=20
+# re-apply the IT filter to already-crawled data (no network)
+.venv/bin/python -m ingestion.reclassify --date 2026-11-26
 ```
 
 Kiểm tra:
@@ -70,7 +75,7 @@ make clean     # stop + delete volumes (destructive)
 ├── docker-compose.yml      # postgres + minio + minio-init
 ├── Makefile                # up / install / test / lint / psql
 ├── docker/init/            # SQL chạy lần đầu khi Postgres khởi tạo
-├── ingestion/              # scraper, parser, loader (Python)
+├── ingestion/              # config, storage, filter, scraper, reclassify
 ├── dags/                   # Airflow DAGs
 ├── dbt/                    # dbt project (models, tests, docs)
 ├── quality/                # Great Expectations suites

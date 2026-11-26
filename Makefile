@@ -8,7 +8,7 @@ VENV := .venv
 export DOCKER_CONFIG := $(CURDIR)/.docker
 export PATH := $(CURDIR)/bin:$(PATH)
 
-.PHONY: help init up down restart logs psql minio-console bucket venv install test lint fmt precommit clean
+.PHONY: help init up down restart logs psql minio-console bucket scrape scrape-dry venv install test lint fmt precommit clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -36,6 +36,12 @@ psql: ## Open a psql shell
 
 bucket: ## Create the raw S3 bucket (run after make install)
 	$(VENV)/bin/python -m ingestion.ensure_bucket
+
+scrape: ## Crawl TopDev into MinIO raw zone (PAGES=20, DATE=today)
+	$(VENV)/bin/python -m ingestion.scrape --pages $${PAGES:-20} $${DATE:+--date $$DATE}
+
+scrape-dry: ## Show what a crawl would do, without network calls
+	$(VENV)/bin/python -m ingestion.scrape --pages $${PAGES:-20} --dry-run
 
 venv: ## Create the Python 3.12 virtualenv
 	test -d $(VENV) || $(PYTHON) -m venv $(VENV)

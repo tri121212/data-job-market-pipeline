@@ -24,7 +24,8 @@ Lý do chọn TopDev: dữ liệu có cấu trúc chuẩn schema.org, không ph�
 | `title` | `title` | |
 | `hiringOrganization.name` | `company` | |
 | `hiringOrganization.sameAs` | `company_url` | |
-| `identifier.value` | `source_id` | số nguyên, ổn định theo job |
+| `identifier.value` | **`company_id`** | ⚠️ đây là **ID công ty**, KHÔNG phải ID job (trùng với đuôi `sameAs`) |
+| đuôi số của URL job (`...-2138855`) | **`source_id`** | khoá thật của một posting |
 | `industry` | `industry` | ⚠️ không đáng tin (xem dưới) |
 | `datePosted` / `validThrough` | `posted_at` / `valid_through` | `YYYY-MM-DD` |
 | `skills` (string, phẩy) | `skills[]` | vd `"Sharepoint, Microsoft 365"` |

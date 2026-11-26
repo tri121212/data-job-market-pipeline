@@ -36,9 +36,7 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/131.0 Safari/537.36"
 )
 REQUEST_DELAY_SECONDS = 1.0
-JSON_LD_RE = re.compile(
-    r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>', re.S
-)
+JSON_LD_RE = re.compile(r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>', re.S)
 
 
 # --------------------------------------------------------------------------- #
@@ -102,9 +100,7 @@ def _parse_salary(base_salary: Any) -> dict[str, Any]:
         result["salary_min"] = _to_int(amount)
         result["salary_max"] = result["salary_min"]
 
-    result["is_salary_negotiable"] = (
-        result["salary_min"] is None and result["salary_max"] is None
-    )
+    result["is_salary_negotiable"] = result["salary_min"] is None and result["salary_max"] is None
     return result
 
 
@@ -132,6 +128,20 @@ def _html_to_text(html: str | None) -> str:
     return BeautifulSoup(html, "lxml").get_text(" ", strip=True)
 
 
+def job_id_from_url(url: str | None) -> str | None:
+    """TopDev job URLs end with the posting id: ``...-2138855``.
+
+    The JSON-LD ``identifier.value`` is the *company* id (it matches the
+    ``hiringOrganization.sameAs`` suffix), so it must not be used as the
+    posting key: one employer posting the same role for 20 locations would
+    collapse into a single record.
+    """
+    if not url:
+        return None
+    match = re.search(r"-(\d+)(?:[?#].*)?$", url)
+    return match.group(1) if match else None
+
+
 def parse_jobposting(html: str, url: str | None = None) -> dict[str, Any] | None:
     """Extract a normalized job dict from a TopDev detail page.
 
@@ -151,16 +161,19 @@ def parse_jobposting(html: str, url: str | None = None) -> dict[str, Any] | None
         return None
 
     identifier = payload.get("identifier") or {}
-    source_id = identifier.get("value") if isinstance(identifier, dict) else None
-    if source_id is None:
-        source_id = hashlib.sha256((url or "").encode()).hexdigest()[:16]
+    company_id = identifier.get("value") if isinstance(identifier, dict) else None
 
     org = payload.get("hiringOrganization") or {}
     apply_url = (payload.get("potentialAction") or {}).get("target") or url
 
+    source_id = job_id_from_url(apply_url) or job_id_from_url(url)
+    if source_id is None:
+        source_id = hashlib.sha256((url or "").encode()).hexdigest()[:16]
+
     job: dict[str, Any] = {
         "source": "topdev",
         "source_id": str(source_id),
+        "company_id": str(company_id) if company_id is not None else None,
         "url": apply_url,
         "title": (payload.get("title") or "").strip(),
         "company": (org.get("name") or "").strip(),
