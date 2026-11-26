@@ -15,6 +15,16 @@
 | Test | ✅ 3 test mới (tổng **45**) |
 | Commit + push | ✅ |
 
+### Cập nhật sau backfill (cùng ngày)
+Crawler chạy nền 160 trang sitemap (41–200) thu thêm **50 job IT** → nạp `--all`:
+```
+200 file(s) -> 61 rows | inserted=50 updated=11
+chạy lại:  200 file(s) -> 61 rows | inserted=0 updated=61
+```
+Audit `_rejects/`: 3.411 tiêu đề bị loại, chỉ **32 ca nghi false-negative** (chủ yếu "sales engineer" — loại đúng). Ước tính false-negative ~1%.
+
+**Nhận xét về mật độ**: 4.000 job sitemap chỉ có 61 job IT (~1,5%). Sitemap TopDev bị chi phối bởi job ngân hàng/bán hàng. Để dashboard có ý nghĩa cần thêm ngày dữ liệu hoặc bổ sung nguồn discovery theo keyword (ghi nhận cho Ngày 6).
+
 ---
 
 ## 2. Vì sao là **upsert**, không phải insert
